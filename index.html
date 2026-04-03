@@ -800,9 +800,16 @@ async function loadFIRMSData() {
 
   try {
     // FIRMS API: VIIRS SNPP, last 7 days, world (we filter to Nepal)
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${057710348201925b4736c54936a012e8}/VIIRS_SNPP_NRT/world/7`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const firmsUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/VIIRS_SNPP_NRT/world/7`;
+let res;
+try {
+  res = await fetch(firmsUrl);
+  if (!res.ok) throw new Error('direct failed');
+} catch(_) {
+  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(firmsUrl)}`;
+  res = await fetch(proxy);
+}
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
     const fires = parseFIRMScsv(csv);
 
