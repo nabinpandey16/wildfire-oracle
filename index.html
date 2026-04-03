@@ -800,16 +800,22 @@ async function loadFIRMSData() {
 
   try {
     // FIRMS API: VIIRS SNPP, last 7 days, world (we filter to Nepal)
+    // Try multiple proxy strategies for CORS
     const firmsUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/VIIRS_SNPP_NRT/80.0,26.3,88.2,30.4/7`;
-let res;
-try {
-  res = await fetch(firmsUrl);
-  if (!res.ok) throw new Error('direct failed');
-} catch(_) {
-  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(firmsUrl)}`;
-  res = await fetch(proxy);
-}
-if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const proxies = [
+      firmsUrl,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(firmsUrl)}`,
+      `https://corsproxy.io/?url=${encodeURIComponent(firmsUrl)}`,
+      `https://proxy.cors.sh/${firmsUrl}`,
+    ];
+    let res = null;
+    for (const url of proxies) {
+      try {
+        const r = await fetch(url, { headers: { 'x-cors-api-key': 'temp_' } });
+        if (r.ok) { res = r; break; }
+      } catch(_) { continue; }
+    }
+    if (!res || !res.ok) throw new Error(`HTTP ${res ? res.status : 'all proxies failed'}`);
     const csv = await res.text();
     const fires = parseFIRMScsv(csv);
 
