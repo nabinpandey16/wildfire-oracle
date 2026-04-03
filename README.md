@@ -3,7 +3,7 @@
 
 > A real-time research dashboard tracking wildfire hotspots and predicting PM₂.₅ air quality spikes across Nepal, powered by NASA FIRMS satellite data and Claude AI.
 
-**[🌐 Live Demo →](https://nabinpandey16.github.io/wildfire-oracle)**
+**[🌐 Live Demo →](https://frabjous-custard-9d92e0.netlify.app/)**
 
 ---
 
