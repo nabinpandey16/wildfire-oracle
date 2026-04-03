@@ -800,7 +800,7 @@ async function loadFIRMSData() {
 
   try {
     // FIRMS API: VIIRS SNPP, last 7 days, world (we filter to Nepal)
-    const firmsUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/VIIRS_SNPP_NRT/world/7`;
+    const firmsUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/VIIRS_SNPP_NRT/80.0,26.3,88.2,30.4/7`;
 let res;
 try {
   res = await fetch(firmsUrl);
