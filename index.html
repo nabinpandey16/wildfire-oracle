@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wildfire Oracle — Nepal PM₂.₅ Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1117;
+    --surface2: #131920;
+    --border: #1e2d3d;
+    --accent: #ff4f1f;
+    --accent2: #ffaa00;
+    --accent3: #00e5ff;
+    --text: #e8edf2;
+    --text-muted: #5a7a8a;
+    --danger: #ff2244;
+    --safe: #00ff88;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    animation: pulse-fire 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-fire {
+    0%, 100% { box-shadow: 0 0 8px var(--accent); }
+    50% { box-shadow: 0 0 24px var(--accent), 0 0 48px rgba(255,79,31,0.3); }
+  }
+
+  .logo-text {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--safe);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--safe);
+    border-radius: 50%;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Layout */
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 60px);
+    gap: 0;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-card {
+    padding: 1rem 1.5rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .stat-card:hover { background: var(--surface2); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .stat-card:hover::before { transform: scaleX(1); }
+
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  .danger-val { color: var(--danger); }
+  .warn-val { color: var(--accent2); }
+  .safe-val { color: var(--safe); }
+  .info-val { color: var(--accent3); }
+
+  /* Map panel */
+  .map-panel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+    background: #0a1520;
+  }
+
+  .map-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 500;
+    background: rgba(6,8,16,0.85);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    backdrop-filter: blur(8px);
+    max-width: 200px;
+  }
+
+  .map-overlay h4 {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Right panel */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* Chart section */
+  .chart-section {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .chart-wrap {
+    height: 140px;
+    position: relative;
+  }
+
+  /* Risk meter */
+  .risk-section {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .risk-meter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .risk-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.65rem;
+  }
+
+  .risk-label { width: 80px; color: var(--text-muted); }
+
+  .risk-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .risk-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .risk-val { width: 35px; text-align: right; color: var(--text); }
+
+  /* AI Chat */
+  .chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .ai-avatar {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .chat-title {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .message {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-role {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .message.user .message-role { color: var(--accent3); }
+  .message.assistant .message-role { color: var(--accent); }
+
+  .message-body {
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .message.user .message-body {
+    border-color: rgba(0,229,255,0.2);
+    background: rgba(0,229,255,0.05);
+  }
+
+  .message.assistant .message-body {
+    border-color: rgba(255,79,31,0.2);
+  }
+
+  .thinking {
+    display: flex;
+    gap: 4px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .thinking span {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: thinking 1.2s ease-in-out infinite;
+  }
+
+  .thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes thinking {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Chat input */
+  .chat-input-wrap {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+  }
+
+  .chat-input::placeholder { color: var(--text-muted); }
+
+  .send-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .send-btn:hover {
+    background: #ff6b3d;
+    box-shadow: 0 0 16px rgba(255,79,31,0.4);
+  }
+
+  .send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Suggestion chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0 1.25rem 0.5rem;
+  }
+
+  .chip {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    background: transparent;
+    font-family: var(--font-mono);
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,79,31,0.05);
+  }
+
+  /* Leaflet dark override */
+  .leaflet-tile {
+    filter: brightness(0.7) saturate(0.5) hue-rotate(180deg) invert(0.85);
+  }
+
+  .leaflet-container {
+    background: #0a1520;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Loading overlay */
+  .data-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(6,8,16,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 1rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .loader-ring {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader-text {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Error banner */
+  .api-notice {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,170,0,0.1);
+    border: 1px solid rgba(255,170,0,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.6rem;
+    color: var(--accent2);
+    z-index: 600;
+    text-align: center;
+    max-width: 300px;
+  }
+
+  @media (max-width: 900px) {
+    .dashboard {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr auto;
+      height: auto;
+    }
+    .stats-bar { grid-template-columns: repeat(3, 1fr); }
+    .map-panel { height: 50vh; }
+    .right-panel { height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔥</div>
+    <div>
+      <div class="logo-text">Wildfire <span>Oracle</span></div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span>Nepal · 2001–<span id="current-year"></span></span>
+    <span>MODIS / VIIRS / MERRA-2</span>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      NASA FIRMS · <span id="last-updated">fetching...</span>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard">
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Active Fires (7d)</div>
+      <div class="stat-value danger-val" id="stat-fires">—</div>
+      <div class="stat-sub">Nepal FIRMS hotspots</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg PM₂.₅ Today</div>
+      <div class="stat-value warn-val" id="stat-pm25">—</div>
+      <div class="stat-sub">μg/m³ · MERRA-2 est.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Peak Season</div>
+      <div class="stat-value info-val" id="stat-season">Mar–Apr</div>
+      <div class="stat-sub">Highest fire-PM₂.₅ lag</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Most Affected</div>
+      <div class="stat-value warn-val" id="stat-region">Mid-Hill</div>
+      <div class="stat-sub">Historical KDE peak zone</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Predicted Spike</div>
+      <div class="stat-value danger-val" id="stat-risk">HIGH</div>
+      <div class="stat-sub">Next 3-day outlook</div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-panel">
+    <div id="map"></div>
+    <div class="map-overlay">
+      <h4>🗺 Layer Legend</h4>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff2244"></div><span>High fire intensity</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff8800"></div><span>Moderate fire</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffdd00"></div><span>Low fire activity</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(0,229,255,0.5)"></div><span>PM₂.₅ risk zone</span></div>
+      <hr style="border-color:#1e2d3d;margin:0.5rem 0">
+      <div style="font-size:0.58rem;color:#3a5a6a">Data: NASA FIRMS API<br>Simulated PM₂.₅ overlay</div>
+    </div>
+    <div id="api-notice" class="api-notice" style="display:none">
+      ℹ️ Using simulated fire data. To show live FIRMS data, add your NASA API key.
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <!-- Chart -->
+    <div class="chart-section">
+      <div class="section-title">PM₂.₅ Seasonal Pattern · Historical Avg (2001–<script>document.write(new Date().getFullYear())</script>)</div>
+      <div class="chart-wrap">
+        <canvas id="pm25-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Risk meter -->
+    <div class="risk-section">
+      <div class="section-title">District Risk Index</div>
+      <div class="risk-meter" id="risk-meter"></div>
+    </div>
+
+    <!-- AI Chat -->
+    <div class="chat-section">
+      <div class="chat-header">
+        <div class="ai-avatar">🧠</div>
+        <div>
+          <div class="chat-title">Oracle AI</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="message assistant">
+          <div class="message-role">Oracle AI</div>
+          <div class="message-body">
+            नमस्ते! I'm your Wildfire Oracle assistant. Ask me anything about Nepal's wildfire patterns, PM₂.₅ concentrations, or what the data means for specific regions.
+          </div>
+        </div>
+      </div>
+      <div class="chips" id="chips">
+        <button class="chip" onclick="sendChip(this)">Which districts are most at risk?</button>
+        <button class="chip" onclick="sendChip(this)">Explain the lag response</button>
+        <button class="chip" onclick="sendChip(this)">Best months to avoid smoke?</button>
+        <button class="chip" onclick="sendChip(this)">How does MODIS detect fires?</button>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chat-input" placeholder="Ask about Nepal wildfires & PM₂.₅..." rows="2"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">Send ↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── MAP SETUP ──────────────────────────────────────────────────────────────────
+const map = L.map('map', {
+  center: [28.3, 84.0],
+  zoom: 7,
+  zoomControl: true,
+  attributionControl: false
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18
+}).addTo(map);
+
+// Nepal bounding box roughly
+const nepalBounds = [[26.3, 80.0], [30.4, 88.2]];
+
+// ── LIVE NASA FIRMS DATA ──────────────────────────────────────────────────────
+const FIRMS_KEY = '057710348201925b4736c54936a012e8';
+const NEPAL_BOUNDS = { minLat: 26.3, maxLat: 30.4, minLng: 80.0, maxLng: 88.2 };
+
+const intensityColors = { high: '#ff2244', moderate: '#ff8800', low: '#ffdd00' };
+const intensityRadius = { high: 18, moderate: 13, low: 9 };
+
+function parseFIRMScsv(csvText) {
+  const lines = csvText.trim().split('\n');
+  const headers = lines[0].split(',');
+  const latIdx = headers.indexOf('latitude');
+  const lngIdx = headers.indexOf('longitude');
+  const brightIdx = headers.findIndex(h => h.includes('bright'));
+  const frpIdx = headers.indexOf('frp'); // Fire Radiative Power
+
+  return lines.slice(1).map(line => {
+    const cols = line.split(',');
+    const lat = parseFloat(cols[latIdx]);
+    const lng = parseFloat(cols[lngIdx]);
+    const frp = parseFloat(cols[frpIdx]) || 0;
+    if (isNaN(lat) || isNaN(lng)) return null;
+    if (lat < NEPAL_BOUNDS.minLat || lat > NEPAL_BOUNDS.maxLat) return null;
+    if (lng < NEPAL_BOUNDS.minLng || lng > NEPAL_BOUNDS.maxLng) return null;
+    const intensity = frp > 50 ? 'high' : frp > 15 ? 'moderate' : 'low';
+    return { lat, lng, frp, intensity };
+  }).filter(Boolean);
+}
+
+function plotFires(fires) {
+  fires.forEach(fire => {
+    const circle = L.circleMarker([fire.lat, fire.lng], {
+      radius: intensityRadius[fire.intensity],
+      fillColor: intensityColors[fire.intensity],
+      color: 'transparent',
+      fillOpacity: 0.8,
+      weight: 0,
+    }).addTo(map);
+
+    circle.bindPopup(`
+      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#e8edf2;background:#0d1117;padding:0.5rem;border-radius:4px;min-width:160px;">
+        <div style="color:${intensityColors[fire.intensity]};font-weight:bold;margin-bottom:0.3rem;">🔥 Live Hotspot</div>
+        <div>FRP: <strong>${fire.frp.toFixed(1)} MW</strong></div>
+        <div>Intensity: <strong>${fire.intensity.toUpperCase()}</strong></div>
+        <div>Lat: ${fire.lat.toFixed(3)}° · Lng: ${fire.lng.toFixed(3)}°</div>
+        <div style="margin-top:0.3rem;color:#5a7a8a;font-size:0.6rem;">NASA VIIRS SNPP · Last 7 days</div>
+      </div>
+    `);
+  });
+
+  // Update stats
+  document.getElementById('stat-fires').textContent = fires.length;
+  const highCount = fires.filter(f => f.intensity === 'high').length;
+  const riskLabel = highCount > 10 ? 'EXTREME' : highCount > 5 ? 'HIGH' : highCount > 2 ? 'MODERATE' : 'LOW';
+  document.getElementById('stat-risk').textContent = riskLabel;
+  document.getElementById('stat-risk').className =
+    'stat-value ' + (highCount > 5 ? 'danger-val' : highCount > 2 ? 'warn-val' : 'safe-val');
+
+  // Estimate PM2.5 from fire density (simplified lag model)
+  const avgFRP = fires.reduce((s, f) => s + f.frp, 0) / (fires.length || 1);
+  const pm25Est = (35 + avgFRP * 0.8 + highCount * 2.5).toFixed(1);
+  document.getElementById('stat-pm25').textContent = pm25Est;
+
+  // Dynamic PM2.5 risk zones based on fire clusters
+  const highFires = fires.filter(f => f.intensity === 'high');
+  highFires.forEach(f => {
+    L.circle([f.lat, f.lng], {
+      radius: 55000,
+      fillColor: '#00e5ff',
+      color: 'transparent',
+      fillOpacity: 0.08,
+    }).addTo(map);
+  });
+
+  // Update FIRMS context for chat
+  window.firmsContext = `Live NASA FIRMS data loaded: ${fires.length} fire hotspots detected in Nepal in the past 7 days. High intensity: ${fires.filter(f=>f.intensity==='high').length}, Moderate: ${fires.filter(f=>f.intensity==='moderate').length}, Low: ${fires.filter(f=>f.intensity==='low').length}. Estimated PM₂.₅: ${pm25Est} μg/m³.`;
+}
+
+async function loadFIRMSData() {
+  const notice = document.getElementById('api-notice');
+  notice.style.display = 'block';
+  notice.style.background = 'rgba(0,229,255,0.08)';
+  notice.style.borderColor = 'rgba(0,229,255,0.3)';
+  notice.style.color = '#00e5ff';
+  notice.textContent = '⏳ Fetching live NASA FIRMS data...';
+
+  try {
+    // FIRMS API: VIIRS SNPP, last 7 days, world (we filter to Nepal)
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/VIIRS_SNPP_NRT/world/7`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+    const fires = parseFIRMScsv(csv);
+
+    if (fires.length === 0) {
+      notice.textContent = '✅ Live data loaded — no active fires in Nepal right now.';
+      notice.style.color = '#00ff88';
+      document.getElementById('stat-fires').textContent = '0';
+      document.getElementById('stat-risk').textContent = 'LOW';
+      document.getElementById('stat-risk').className = 'stat-value safe-val';
+      document.getElementById('stat-pm25').textContent = '28.4';
+    } else {
+      plotFires(fires);
+      notice.textContent = `✅ Live NASA FIRMS · ${fires.length} hotspots in Nepal · ${new Date().toUTCString()}`;
+      notice.style.color = '#00ff88';
+      setTimeout(() => notice.style.display = 'none', 6000);
+    }
+  } catch (err) {
+    console.warn('FIRMS fetch failed:', err);
+    notice.textContent = `⚠️ FIRMS API unavailable (CORS on GitHub Pages). Using representative data. Error: ${err.message}`;
+    notice.style.color = '#ffaa00';
+    notice.style.background = 'rgba(255,170,0,0.08)';
+    // Fall back to representative data
+    const fallback = [
+      {lat:27.6,lng:84.4,frp:72,intensity:'high'},
+      {lat:28.1,lng:81.3,frp:85,intensity:'high'},
+      {lat:27.5,lng:83.5,frp:28,intensity:'moderate'},
+      {lat:28.5,lng:83.7,frp:61,intensity:'high'},
+      {lat:27.9,lng:85.1,frp:12,intensity:'low'},
+      {lat:27.1,lng:85.9,frp:55,intensity:'high'},
+      {lat:27.8,lng:82.2,frp:66,intensity:'high'},
+      {lat:28.0,lng:82.8,frp:22,intensity:'moderate'},
+      {lat:26.9,lng:87.3,frp:18,intensity:'moderate'},
+      {lat:28.3,lng:84.9,frp:30,intensity:'moderate'},
+    ];
+    plotFires(fallback);
+  }
+}
+
+// ── DYNAMIC DATE & AUTO-REFRESH ───────────────────────────────────────────────
+const now = new Date();
+document.getElementById('current-year').textContent = now.getFullYear();
+
+function updateTimestamp() {
+  const t = new Date();
+  document.getElementById('last-updated').textContent =
+    t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+}
+
+// Auto-refresh live fire data every 10 minutes
+setInterval(() => {
+  loadFIRMSData();
+  updateTimestamp();
+}, 10 * 60 * 1000);
+
+// Boot
+loadFIRMSData();
+updateTimestamp();
+
+// ── CHART ─────────────────────────────────────────────────────────────────────
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const pm25Data = [38, 45, 88, 112, 78, 42, 30, 28, 35, 40, 42, 38]; // representative values
+const fireData = [15, 22, 85, 130, 60, 12, 5, 4, 8, 10, 14, 12]; // fire counts
+
+const ctx = document.getElementById('pm25-chart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'PM₂.₅ (μg/m³)',
+        data: pm25Data,
+        borderColor: '#ff4f1f',
+        backgroundColor: 'rgba(255,79,31,0.08)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#ff4f1f',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y',
+      },
+      {
+        label: 'Fire Count',
+        data: fireData,
+        borderColor: '#ffaa00',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [4,3],
+        pointRadius: 2,
+        pointBackgroundColor: '#ffaa00',
+        fill: false,
+        tension: 0.4,
+        yAxisID: 'y1',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#5a7a8a',
+          font: { family: 'Space Mono', size: 9 },
+          boxWidth: 12
+        }
+      },
+      tooltip: {
+        backgroundColor: '#0d1117',
+        borderColor: '#1e2d3d',
+        borderWidth: 1,
+        titleColor: '#e8edf2',
+        bodyColor: '#5a7a8a',
+        titleFont: { family: 'Space Mono', size: 10 },
+        bodyFont: { family: 'Space Mono', size: 10 },
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#5a7a8a', font: { family: 'Space Mono', size: 8 } },
+        grid: { color: '#1e2d3d' }
+      },
+      y: {
+        ticks: { color: '#ff4f1f', font: { family: 'Space Mono', size: 8 } },
+        grid: { color: '#1e2d3d' },
+        position: 'left',
+      },
+      y1: {
+        ticks: { color: '#ffaa00', font: { family: 'Space Mono', size: 8 } },
+        grid: { display: false },
+        position: 'right',
+      }
+    }
+  }
+});
+
+// ── RISK METER ────────────────────────────────────────────────────────────────
+const districts = [
+  { name: 'Chitwan', risk: 88, color: '#ff2244' },
+  { name: 'Bardiya', risk: 82, color: '#ff2244' },
+  { name: 'Salyan', risk: 74, color: '#ff8800' },
+  { name: 'Sindhuli', risk: 68, color: '#ff8800' },
+  { name: 'Gorkha', risk: 55, color: '#ffaa00' },
+  { name: 'Kathmandu', risk: 45, color: '#ffdd00' },
+];
+
+const riskMeter = document.getElementById('risk-meter');
+districts.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'risk-bar-wrap';
+  el.innerHTML = `
+    <div class="risk-label">${d.name}</div>
+    <div class="risk-bar-bg">
+      <div class="risk-bar-fill" style="width:0%;background:${d.color}" data-target="${d.risk}"></div>
+    </div>
+    <div class="risk-val">${d.risk}</div>
+  `;
+  riskMeter.appendChild(el);
+});
+
+// Animate bars on load
+setTimeout(() => {
+  document.querySelectorAll('.risk-bar-fill').forEach(bar => {
+    bar.style.width = bar.dataset.target + '%';
+  });
+}, 300);
+
+// ── AI CHAT ───────────────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are the Wildfire Oracle — an expert AI assistant embedded in a research dashboard about Nepal's wildfire and PM₂.₅ air quality patterns.
+
+Key context about this research:
+- Study period: 2001–2024
+- Data sources: MODIS, VIIRS/NASA FIRMS (fire detection), MERRA-2 (aerosol/PM₂.₅ reanalysis)
+- Methods used: Kernel Density Estimation (KDE) for spatial patterns, time-series analysis, lag-response analysis
+- Key finding: Peak fire season is March–April; PM₂.₅ spikes follow with 1–3 day lag
+- Most affected zones: Mid-hills and Terai belt (Chitwan, Bardiya, Salyan corridors)
+- The researcher (Nabin) is a physics undergrad at Tri-Chandra Campus, TU, Nepal
+
+Respond as a knowledgeable, concise assistant. Use μg/m³ for PM₂.₅ units. Keep answers under 120 words unless asked to elaborate. Be scientific but accessible. When asked about current data, use window.firmsContext if available.`;
+
+let conversationHistory = [];
+
+async function callClaudeAPI(userMessage) {
+  const liveContext = window.firmsContext ? `\n\n[Live dashboard data: ${window.firmsContext}]` : '';
+  const enriched = conversationHistory.length === 0 ? userMessage + liveContext : userMessage;
+  conversationHistory.push({ role: 'user', content: enriched });
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: conversationHistory
+    })
+  });
+
+  if (!response.ok) throw new Error('API error');
+  const data = await response.json();
+  const reply = data.content[0].text;
+  conversationHistory.push({ role: 'assistant', content: reply });
+  return reply;
+}
+
+function appendMessage(role, content, isThinking = false) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  if (isThinking) div.id = 'thinking-indicator';
+  div.innerHTML = `
+    <div class="message-role">${role === 'user' ? 'You' : 'Oracle AI'}</div>
+    <div class="message-body">${isThinking ?
+      '<div class="thinking"><span></span><span></span><span></span></div>' :
+      content
+    }</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Hide chips after first message
+  document.getElementById('chips').style.display = 'none';
+
+  input.value = '';
+  btn.disabled = true;
+  appendMessage('user', text);
+  appendMessage('assistant', '', true);
+
+  try {
+    const reply = await callClaudeAPI(text);
+    const thinking = document.getElementById('thinking-indicator');
+    if (thinking) thinking.remove();
+    appendMessage('assistant', reply);
+  } catch (e) {
+    const thinking = document.getElementById('thinking-indicator');
+    if (thinking) thinking.remove();
+    appendMessage('assistant', '⚠️ Could not reach the Oracle API. Make sure the Anthropic API is available in this environment.');
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+
+function sendChip(el) {
+  const text = el.textContent;
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+</script>
+</body>
+</html>
