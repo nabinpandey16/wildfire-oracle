@@ -448,11 +448,11 @@
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
       Website
     </a>
-    <a class="flink" href="mailto:naveenxettri16@gmail.com">
+    <a class="flink" href="/cdn-cgi/l/email-protection#167877607373786e736262647f272056717b777f7a3875797b">
       <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
       Email
     </a>
-    <a class="flink" href="mailto:nabin.795401@trc.tu.edu.np">
+    <a class="flink" href="/cdn-cgi/l/email-protection#bbd5dad9d2d5958c828e8f8b8afbcfc9d895cfce95dedfce95d5cb">
       <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
       Institution
     </a>
@@ -461,7 +461,7 @@
   <div class="foot-copy">Vayu Oracle &middot; Nepal Wildfire Research &middot; <span id="foot-year"></span></div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── YEARS ─────────────────────────────────────────────────────────────────────
 var yr = new Date().getFullYear();
 ['hdr-year','trend-year','foot-year'].forEach(function(id){
@@ -541,7 +541,11 @@ function setNotice(msg,color,bg,border){
 
 function loadFIRMS(){
   setNotice('Fetching live NASA FIRMS data...','#00d4ff','rgba(0,212,255,0.08)','rgba(0,212,255,0.25)');
-  fetch('/.netlify/functions/firms')
+  // Try Netlify function first (works on Netlify), fall back to direct NASA API (works on GitHub Pages)
+  var isNetlify = window.location.hostname.includes('netlify');
+  var firmsUrl = 'https://firms.modaps.eosdis.nasa.gov/api/country/csv/057710348201925b4736c54936a012e8/VIIRS_SNPP_NRT/NPL/7';
+  var fetchUrl = isNetlify ? '/.netlify/functions/firms' : firmsUrl;
+  fetch(fetchUrl)
     .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.text();})
     .then(function(csv){
       var fires=parseFIRMS(csv);
@@ -717,12 +721,4 @@ new Chart(document.getElementById('chart-trend').getContext('2d'),{
     '<div class="risk-name">'+d.name+'</div>'+
     '<div class="risk-track"><div class="risk-fill" style="width:0%;background:'+d.color+'" data-t="'+d.risk+'"></div></div>'+
     '<div class="risk-num">'+d.risk+'</div>';
-  document.getElementById('risk-meter').appendChild(el);
-});
-
-setTimeout(function(){
-  document.querySelectorAll('.risk-fill').forEach(function(b){b.style.width=b.dataset.t+'%';});
-},400);
-</script>
-</body>
-</html>
+  document.
