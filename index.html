@@ -541,23 +541,12 @@ function setNotice(msg,color,bg,border){
 
 function loadFIRMS(){
   setNotice('Fetching live NASA FIRMS data...','#00d4ff','rgba(0,212,255,0.08)','rgba(0,212,255,0.25)');
-  // Smart routing: Netlify function (Netlify hosting) or direct NASA API (GitHub Pages / other)
+  // Try Netlify function first (works on Netlify), fall back to direct NASA API (works on GitHub Pages)
   var isNetlify = window.location.hostname.includes('netlify');
-  var KEY = '057710348201925b4736c54936a012e8';
-  // country endpoint: cleaner, no bbox needed, Nepal = NPL
-  var firmsUrl = 'https://firms.modaps.eosdis.nasa.gov/api/country/csv/'+KEY+'/VIIRS_SNPP_NRT/NPL/7';
+  var firmsUrl = 'https://firms.modaps.eosdis.nasa.gov/api/country/csv/057710348201925b4736c54936a012e8/VIIRS_SNPP_NRT/NPL/7';
   var fetchUrl = isNetlify ? '/.netlify/functions/firms' : firmsUrl;
-
   fetch(fetchUrl)
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.text();
-    })
-    .then(function(text){
-      // Handle case where NASA returns HTML error page instead of CSV
-      if(text.trim().startsWith('<')) throw new Error('non-CSV response');
-      return text;
-    })
+    .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.text();})
     .then(function(csv){
       var fires=parseFIRMS(csv);
       if(fires.length===0){
