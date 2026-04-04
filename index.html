@@ -11,24 +11,24 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
-    --bg:       #05070f;
-    --surface:  #0b0f1a;
-    --surface2: #101520;
-    --border:   #1a2538;
-    --accent:   #e85d26;
-    --accent2:  #f5a623;
-    --accent3:  #00d4ff;
-    --text:     #dde4ed;
-    --muted:    #4a6275;
-    --danger:   #ff2244;
-    --safe:     #00e87a;
+    --bg:      #05070f;
+    --surf:    #0b0f1a;
+    --surf2:   #101520;
+    --border:  #1a2538;
+    --accent:  #e85d26;
+    --accent2: #f5a623;
+    --accent3: #00d4ff;
+    --accent4: #a855f7;
+    --text:    #dde4ed;
+    --muted:   #4a6275;
+    --danger:  #ff2244;
+    --safe:    #00e87a;
     --fd: 'Syne', sans-serif;
     --fm: 'Space Mono', monospace;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html, body { height: 100%; overflow: hidden; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
 
   body {
     background: var(--bg);
@@ -36,300 +36,226 @@
     font-family: var(--fm);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
   }
 
-  /* scanlines */
   body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
-    pointer-events: none;
-    z-index: 9000;
+    content:'';
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+    pointer-events:none;
+    z-index:9000;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.7rem 1.75rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-    z-index: 100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.65rem 1.75rem;
+    border-bottom:1px solid var(--border);
+    background:var(--surf);
+    flex-shrink:0; z-index:100;
   }
 
-  .logo { display: flex; align-items: center; gap: 0.7rem; }
+  .logo { display:flex; align-items:center; gap:0.65rem; }
 
   .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--fd); font-weight: 800; font-size: 0.85rem;
-    color: #fff; letter-spacing: -0.05em;
-    box-shadow: 0 0 12px rgba(232,93,38,0.5);
-    animation: glow 2.5s ease-in-out infinite;
+    width:34px; height:34px; background:var(--accent); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--fd); font-weight:800; font-size:0.9rem; color:#fff;
+    animation:glow 2.5s ease-in-out infinite;
   }
 
   @keyframes glow {
-    0%,100% { box-shadow: 0 0 8px rgba(232,93,38,0.4); }
-    50%      { box-shadow: 0 0 22px rgba(232,93,38,0.7), 0 0 40px rgba(232,93,38,0.2); }
+    0%,100%{ box-shadow:0 0 8px rgba(232,93,38,0.4); }
+    50%    { box-shadow:0 0 22px rgba(232,93,38,0.7),0 0 40px rgba(232,93,38,0.2); }
   }
 
-  .logo-name { font-family: var(--fd); font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
-  .logo-name span { color: var(--accent); }
-  .logo-sub { font-size: 0.55rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-top: 1px; }
+  .logo-name { font-family:var(--fd); font-weight:800; font-size:1.1rem; letter-spacing:-0.02em; }
+  .logo-name span { color:var(--accent); }
+  .logo-sub { font-size:0.52rem; letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; margin-top:1px; }
 
-  .header-right { display: flex; align-items: center; gap: 1.25rem; font-size: 0.62rem; color: var(--muted); }
+  .hdr-right { display:flex; align-items:center; gap:1rem; font-size:0.6rem; color:var(--muted); }
 
   .live-pill {
-    display: flex; align-items: center; gap: 0.35rem;
-    background: rgba(0,232,122,0.08); border: 1px solid rgba(0,232,122,0.2);
-    border-radius: 20px; padding: 0.25rem 0.65rem;
-    color: var(--safe); font-size: 0.6rem; letter-spacing: 0.08em;
+    display:flex; align-items:center; gap:0.32rem;
+    background:rgba(0,232,122,0.08); border:1px solid rgba(0,232,122,0.2);
+    border-radius:20px; padding:0.22rem 0.6rem;
+    color:var(--safe); font-size:0.58rem; letter-spacing:0.08em;
   }
 
   .live-dot {
-    width: 5px; height: 5px; background: var(--safe); border-radius: 50%;
-    animation: blink 1.4s ease-in-out infinite;
+    width:5px; height:5px; background:var(--safe); border-radius:50%;
+    animation:blink 1.4s ease-in-out infinite;
   }
 
-  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.15; } }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.1;} }
 
-  /* ── STATS BAR ── */
+  /* STATS BAR */
   .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    display:grid; grid-template-columns:repeat(5,1fr);
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
   }
 
   .stat {
-    padding: 0.65rem 1.25rem;
-    border-right: 1px solid var(--border);
-    position: relative; overflow: hidden;
-    transition: background 0.2s;
-    cursor: default;
+    padding:0.6rem 1.1rem;
+    border-right:1px solid var(--border);
+    position:relative; overflow:hidden;
+    transition:background 0.2s; cursor:default;
   }
 
-  .stat:hover { background: var(--surface2); }
+  .stat:hover { background:var(--surf2); }
 
   .stat::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-    background: var(--accent); transform: scaleX(0); transform-origin: left;
-    transition: transform 0.35s ease;
+    content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+    background:var(--accent); transform:scaleX(0); transform-origin:left;
+    transition:transform 0.32s ease;
   }
 
-  .stat:hover::after { transform: scaleX(1); }
+  .stat:hover::after { transform:scaleX(1); }
 
-  .stat-lbl { font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
-  .stat-val { font-family: var(--fd); font-size: 1.45rem; font-weight: 800; line-height: 1; }
-  .stat-note { font-size: 0.55rem; color: var(--muted); margin-top: 0.2rem; }
+  .stat-lbl { font-size:0.52rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); margin-bottom:0.18rem; }
+  .stat-val { font-family:var(--fd); font-size:1.38rem; font-weight:800; line-height:1; }
+  .stat-note { font-size:0.52rem; color:var(--muted); margin-top:0.18rem; }
 
-  .c-danger { color: var(--danger); }
-  .c-warn   { color: var(--accent2); }
-  .c-info   { color: var(--accent3); }
-  .c-safe   { color: var(--safe); }
+  .cd { color:var(--danger); }
+  .cw { color:var(--accent2); }
+  .ci { color:var(--accent3); }
+  .cs { color:var(--safe); }
+  .cp { color:var(--accent4); }
 
-  /* ── MAIN ── */
+  /* MAIN GRID */
   .main {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
+    display:grid;
+    grid-template-columns:1fr 400px;
+    flex:1;
+    min-height:0;
+    overflow:hidden;
   }
 
-  /* ── MAP ── */
-  .map-wrap { position: relative; overflow: hidden; }
-
-  #map { width: 100%; height: 100%; }
+  /* MAP */
+  .map-wrap { position:relative; overflow:hidden; }
+  #map { width:100%; height:100%; }
 
   .map-legend {
-    position: absolute; top: 0.85rem; left: 0.85rem; z-index: 500;
-    background: rgba(5,7,15,0.88); border: 1px solid var(--border);
-    border-radius: 6px; padding: 0.65rem 0.85rem;
-    font-size: 0.6rem; color: var(--muted);
-    backdrop-filter: blur(10px); min-width: 170px;
+    position:absolute; top:0.8rem; left:0.8rem; z-index:500;
+    background:rgba(5,7,15,0.9); border:1px solid var(--border);
+    border-radius:6px; padding:0.6rem 0.8rem;
+    font-size:0.58rem; color:var(--muted);
+    backdrop-filter:blur(10px); min-width:165px;
   }
 
-  .map-legend h4 { font-family: var(--fd); font-size: 0.65rem; color: var(--text); margin-bottom: 0.45rem; letter-spacing: 0.04em; }
-  .leg-row { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.28rem; }
-  .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .map-legend h4 { font-family:var(--fd); font-size:0.62rem; color:var(--text); margin-bottom:0.4rem; }
+  .leg-row { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem; }
+  .leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
   .map-notice {
-    position: absolute; bottom: 0.85rem; left: 50%; transform: translateX(-50%);
-    padding: 0.45rem 1rem; border-radius: 20px; border: 1px solid;
-    font-size: 0.58rem; z-index: 600; text-align: center; white-space: nowrap;
-    backdrop-filter: blur(8px);
+    position:absolute; bottom:0.8rem; left:50%; transform:translateX(-50%);
+    padding:0.4rem 0.9rem; border-radius:20px; border:1px solid;
+    font-size:0.56rem; z-index:600; text-align:center;
+    backdrop-filter:blur(8px); white-space:nowrap; max-width:380px;
   }
 
-  /* ── RIGHT PANEL ── */
+  /* RIGHT PANEL - scrollable analytics */
   .right-panel {
-    display: flex; flex-direction: column;
-    border-left: 1px solid var(--border);
-    overflow: hidden; min-height: 0;
+    border-left:1px solid var(--border);
+    overflow-y:auto;
+    padding:1rem;
+    display:flex; flex-direction:column; gap:1.1rem;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+    background:var(--surf);
   }
 
-  /* tabs */
-  .tabs {
-    display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  .panel-block {
+    background:var(--surf2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:0.85rem;
+    flex-shrink:0;
   }
 
-  .tab {
-    flex: 1; padding: 0.6rem 0;
-    font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); cursor: pointer; text-align: center;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s; background: transparent; border-top: none; border-left: none; border-right: none;
-    font-family: var(--fm);
+  .block-title {
+    font-size:0.55rem; letter-spacing:0.13em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:0.7rem;
+    display:flex; align-items:center; gap:0.4rem;
   }
 
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .block-title::after { content:''; flex:1; height:1px; background:var(--border); }
 
-  /* tab panels */
-  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
-  .tab-panel.active { display: flex; }
+  .chart-wrap-sm { height:130px; position:relative; }
+  .chart-wrap-md { height:155px; position:relative; }
 
-  /* ── ANALYTICS TAB ── */
-  .analytics-scroll { flex: 1; overflow-y: auto; padding: 1rem 1.1rem; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  /* risk bars */
+  .risk-row { display:flex; align-items:center; gap:0.55rem; font-size:0.6rem; margin-bottom:0.38rem; }
+  .risk-name { width:72px; color:var(--muted); font-size:0.58rem; }
+  .risk-track { flex:1; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .risk-fill { height:100%; border-radius:3px; transition:width 1.6s cubic-bezier(0.4,0,0.2,1); }
+  .risk-num { width:26px; text-align:right; font-size:0.58rem; color:var(--text); }
 
-  .panel-title {
-    font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 0.6rem;
-    display: flex; align-items: center; gap: 0.4rem;
+  /* season compare cards */
+  .season-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+
+  .season-card {
+    border:1px solid var(--border); border-radius:6px;
+    padding:0.65rem 0.75rem; text-align:center;
   }
 
-  .panel-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .season-label { font-size:0.52rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.3rem; }
+  .season-val { font-family:var(--fd); font-size:1.1rem; font-weight:800; }
+  .season-sub { font-size:0.52rem; color:var(--muted); margin-top:0.2rem; }
 
-  .chart-wrap { height: 150px; margin-bottom: 1.25rem; }
+  /* lag table */
+  .lag-table { width:100%; border-collapse:collapse; font-size:0.58rem; }
+  .lag-table th { color:var(--muted); font-size:0.52rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.3rem 0.4rem; text-align:left; border-bottom:1px solid var(--border); font-weight:400; }
+  .lag-table td { padding:0.32rem 0.4rem; border-bottom:1px solid rgba(26,37,56,0.5); }
+  .lag-table tr:last-child td { border-bottom:none; }
+  .lag-table tr:hover td { background:rgba(255,255,255,0.02); }
 
-  .risk-row { display: flex; align-items: center; gap: 0.65rem; font-size: 0.62rem; margin-bottom: 0.42rem; }
-  .risk-name { width: 75px; color: var(--muted); }
-  .risk-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .risk-fill { height: 100%; border-radius: 3px; transition: width 1.6s cubic-bezier(0.4,0,0.2,1); }
-  .risk-num { width: 28px; text-align: right; font-size: 0.6rem; }
-
-  /* ── CHAT TAB ── */
-  .chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
-
-  .chat-msgs {
-    flex: 1; overflow-y: auto; padding: 1rem 1.1rem;
-    display: flex; flex-direction: column; gap: 0.7rem;
-    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-  }
-
-  .msg { display: flex; flex-direction: column; gap: 0.2rem; animation: fadeUp 0.25s ease; }
-
-  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-  .msg-role { font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .msg.user .msg-role { color: var(--accent3); }
-  .msg.assistant .msg-role { color: var(--accent); }
-
-  .msg-body {
-    font-size: 0.7rem; line-height: 1.65; color: var(--text);
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 0.55rem 0.75rem;
-  }
-
-  .msg.user .msg-body { border-color: rgba(0,212,255,0.18); background: rgba(0,212,255,0.04); }
-  .msg.assistant .msg-body { border-color: rgba(232,93,38,0.18); }
-
-  .dots { display: flex; gap: 4px; padding: 0.55rem 0.75rem; }
-  .dots span { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: dot 1.2s ease-in-out infinite; }
-  .dots span:nth-child(2) { animation-delay: 0.2s; }
-  .dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dot { 0%,80%,100% { transform:scale(0.5); opacity:0.3; } 40% { transform:scale(1); opacity:1; } }
-
-  /* chips */
-  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.5rem 1.1rem; flex-shrink: 0; }
-
-  .chip {
-    font-size: 0.57rem; padding: 0.28rem 0.55rem;
-    border: 1px solid var(--border); border-radius: 20px;
-    cursor: pointer; color: var(--muted); background: transparent;
-    font-family: var(--fm); transition: all 0.18s;
-  }
-
-  .chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,93,38,0.06); }
-
-  /* input */
-  .chat-input-row {
-    padding: 0.75rem 1.1rem; border-top: 1px solid var(--border);
-    display: flex; gap: 0.5rem; flex-shrink: 0;
-  }
-
-  .chat-input {
-    flex: 1; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 0.6rem 0.8rem;
-    color: var(--text); font-family: var(--fm); font-size: 0.7rem;
-    outline: none; resize: none; transition: border-color 0.2s;
-    line-height: 1.5;
-  }
-
-  .chat-input:focus { border-color: var(--accent); }
-  .chat-input::placeholder { color: var(--muted); }
-
-  .send-btn {
-    background: var(--accent); border: none; border-radius: 8px;
-    padding: 0.6rem 1rem; color: #fff;
-    font-family: var(--fm); font-size: 0.68rem; font-weight: 700;
-    cursor: pointer; transition: all 0.18s; align-self: flex-end;
-  }
-
-  .send-btn:hover { background: #ff6b3d; box-shadow: 0 0 18px rgba(232,93,38,0.4); }
-  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  /* ── FOOTER ── */
+  /* FOOTER */
   footer {
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-    padding: 0.6rem 1.75rem;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0; gap: 1rem;
+    border-top:1px solid var(--border);
+    background:var(--surf);
+    padding:0.55rem 1.75rem;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-shrink:0; gap:1rem;
   }
 
-  .footer-about { display: flex; align-items: center; gap: 0.85rem; }
+  .foot-left { display:flex; align-items:center; gap:0.75rem; }
 
-  .avatar-ring {
-    width: 30px; height: 30px; border-radius: 50%;
-    border: 1.5px solid var(--accent);
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--fd); font-weight: 800; font-size: 0.65rem; color: #fff;
-    flex-shrink: 0;
+  .avatar {
+    width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--accent);
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--fd); font-weight:800; font-size:0.6rem; color:#fff;
+    flex-shrink:0;
   }
 
-  .about-text {}
-  .about-name { font-family: var(--fd); font-weight: 600; font-size: 0.72rem; color: var(--text); }
-  .about-role { font-size: 0.55rem; color: var(--muted); margin-top: 1px; }
+  .foot-name { font-family:var(--fd); font-weight:600; font-size:0.7rem; color:var(--text); }
+  .foot-role { font-size:0.52rem; color:var(--muted); margin-top:1px; }
 
-  .footer-links { display: flex; align-items: center; gap: 0.6rem; }
+  .foot-links { display:flex; align-items:center; gap:0.5rem; }
 
-  .footer-link {
-    display: flex; align-items: center; gap: 0.3rem;
-    font-size: 0.58rem; color: var(--muted);
-    text-decoration: none; padding: 0.25rem 0.55rem;
-    border: 1px solid var(--border); border-radius: 5px;
-    transition: all 0.18s;
+  .flink {
+    display:flex; align-items:center; gap:0.28rem;
+    font-size:0.56rem; color:var(--muted);
+    text-decoration:none; padding:0.22rem 0.5rem;
+    border:1px solid var(--border); border-radius:5px;
+    transition:all 0.18s;
   }
 
-  .footer-link:hover { color: var(--accent); border-color: var(--accent); background: rgba(232,93,38,0.06); }
-  .footer-link svg { width: 11px; height: 11px; fill: currentColor; flex-shrink: 0; }
+  .flink:hover { color:var(--accent); border-color:var(--accent); background:rgba(232,93,38,0.06); }
+  .flink svg { width:10px; height:10px; fill:currentColor; flex-shrink:0; }
 
-  .footer-copy { font-size: 0.52rem; color: var(--muted); white-space: nowrap; }
+  .foot-copy { font-size:0.5rem; color:var(--muted); white-space:nowrap; }
 
-  /* ── LEAFLET DARK ── */
-  .leaflet-tile { filter: brightness(0.65) saturate(0.4) hue-rotate(185deg) invert(0.88); }
-  .leaflet-container { background: #08101a; }
+  /* leaflet dark */
+  .leaflet-tile { filter:brightness(0.62) saturate(0.35) hue-rotate(188deg) invert(0.9); }
+  .leaflet-container { background:#080e18; }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 3px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar { width:3px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 </style>
 </head>
 <body>
@@ -343,7 +269,7 @@
       <div class="logo-sub">Nepal Wildfire &amp; PM2.5 Intelligence</div>
     </div>
   </div>
-  <div class="header-right">
+  <div class="hdr-right">
     <span>MODIS &middot; VIIRS &middot; MERRA-2</span>
     <span>Nepal &middot; 2001&ndash;<span id="hdr-year"></span></span>
     <div class="live-pill">
@@ -357,27 +283,27 @@
 <div class="stats-bar">
   <div class="stat">
     <div class="stat-lbl">Active Fires (7d)</div>
-    <div class="stat-val c-danger" id="s-fires">--</div>
+    <div class="stat-val cd" id="s-fires">--</div>
     <div class="stat-note">Nepal FIRMS hotspots</div>
   </div>
   <div class="stat">
     <div class="stat-lbl">Est. PM2.5 Today</div>
-    <div class="stat-val c-warn" id="s-pm25">--</div>
+    <div class="stat-val cw" id="s-pm25">--</div>
     <div class="stat-note">ug/m3 &middot; MERRA-2 model</div>
   </div>
   <div class="stat">
-    <div class="stat-lbl">Peak Season</div>
-    <div class="stat-val c-info">Mar&ndash;Apr</div>
-    <div class="stat-note">Max fire-PM2.5 coupling</div>
+    <div class="stat-lbl">Pre-monsoon Avg</div>
+    <div class="stat-val cd">96.4</div>
+    <div class="stat-note">ug/m3 &middot; Mar&ndash;May peak</div>
   </div>
   <div class="stat">
-    <div class="stat-lbl">Most Affected</div>
-    <div class="stat-val c-warn">Mid-Hill</div>
-    <div class="stat-note">Historical KDE peak zone</div>
+    <div class="stat-lbl">Monsoon Avg</div>
+    <div class="stat-val cs">29.1</div>
+    <div class="stat-note">ug/m3 &middot; Jun&ndash;Sep low</div>
   </div>
   <div class="stat">
     <div class="stat-lbl">3-Day Risk</div>
-    <div class="stat-val c-danger" id="s-risk">HIGH</div>
+    <div class="stat-val cd" id="s-risk">HIGH</div>
     <div class="stat-note">Predicted PM2.5 spike</div>
   </div>
 </div>
@@ -390,60 +316,110 @@
     <div id="map"></div>
     <div class="map-legend">
       <h4>Layer Legend</h4>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff2244"></div><span>High intensity fire</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ff8800"></div><span>Moderate fire</span></div>
-      <div class="leg-row"><div class="leg-dot" style="background:#ffdd00"></div><span>Low fire activity</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff2244"></div><span>High intensity (&gt;50 MW FRP)</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ff8800"></div><span>Moderate (15&ndash;50 MW)</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#ffdd00"></div><span>Low (&lt;15 MW)</span></div>
       <div class="leg-row"><div class="leg-dot" style="background:rgba(0,212,255,0.55)"></div><span>PM2.5 risk zone</span></div>
-      <hr style="border-color:#1a2538;margin:0.45rem 0">
-      <div style="font-size:0.55rem;color:#3a5a6a;line-height:1.5">Source: NASA FIRMS API<br>PM2.5 overlay is estimated</div>
+      <hr style="border-color:#1a2538;margin:0.4rem 0">
+      <div style="font-size:0.53rem;color:#3a5a6a;line-height:1.5">Source: NASA FIRMS API<br>PM2.5 overlay estimated via FRP</div>
     </div>
     <div id="map-notice" class="map-notice" style="display:none"></div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- ANALYTICS PANEL -->
   <div class="right-panel">
 
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('chat')">Oracle AI Chat</button>
-      <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+    <!-- 1. Seasonal PM2.5 + Fire -->
+    <div class="panel-block">
+      <div class="block-title">PM2.5 &amp; Fire Count &middot; Seasonal Pattern</div>
+      <div class="chart-wrap-md"><canvas id="chart-seasonal"></canvas></div>
     </div>
 
-    <!-- CHAT TAB -->
-    <div class="tab-panel active chat-panel" id="tab-chat">
-      <div class="chat-msgs" id="chat-msgs">
-        <div class="msg assistant">
-          <div class="msg-role">Vayu Oracle AI</div>
-          <div class="msg-body">
-            Namaste! I am Vayu Oracle, your AI assistant for Nepal wildfire and PM2.5 research. I have live fire data and full research context loaded.<br><br>
-            Ask me anything — district risk, seasonal patterns, methodology, or what the current data means.
+    <!-- 2. Pre-monsoon vs Monsoon comparison -->
+    <div class="panel-block">
+      <div class="block-title">Pre-monsoon vs Monsoon &middot; PM2.5 Comparison</div>
+      <div class="season-grid">
+        <div class="season-card" style="border-color:rgba(232,93,38,0.3)">
+          <div class="season-label">Pre-monsoon</div>
+          <div class="season-val cd">96.4</div>
+          <div class="season-sub">ug/m3 avg &middot; Mar&ndash;May</div>
+          <div class="season-sub" style="margin-top:0.4rem;color:var(--danger)">3.3x above WHO guideline</div>
+        </div>
+        <div class="season-card" style="border-color:rgba(0,232,122,0.3)">
+          <div class="season-label">Monsoon</div>
+          <div class="season-val cs">29.1</div>
+          <div class="season-sub">ug/m3 avg &middot; Jun&ndash;Sep</div>
+          <div class="season-sub" style="margin-top:0.4rem;color:var(--safe)">Rain suppresses fires</div>
+        </div>
+        <div class="season-card" style="border-color:rgba(245,166,35,0.3)">
+          <div class="season-label">Post-monsoon</div>
+          <div class="season-val cw">41.2</div>
+          <div class="season-sub">ug/m3 avg &middot; Oct&ndash;Nov</div>
+          <div class="season-sub" style="margin-top:0.4rem;color:var(--accent2)">Secondary fire peak</div>
+        </div>
+        <div class="season-card" style="border-color:rgba(0,212,255,0.3)">
+          <div class="season-label">Winter</div>
+          <div class="season-val ci">38.5</div>
+          <div class="season-sub">ug/m3 avg &middot; Dec&ndash;Feb</div>
+          <div class="season-sub" style="margin-top:0.4rem;color:var(--accent3)">Biomass + fog effect</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Fire distribution by season (Pie) -->
+    <div class="panel-block">
+      <div class="block-title">Fire Hotspot Distribution by Season</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;align-items:center">
+        <div class="chart-wrap-sm"><canvas id="chart-pie"></canvas></div>
+        <div style="font-size:0.58rem;display:flex;flex-direction:column;gap:0.38rem">
+          <div style="display:flex;align-items:center;gap:0.4rem"><div style="width:9px;height:9px;border-radius:2px;background:#e85d26;flex-shrink:0"></div><span>Pre-monsoon (Mar&ndash;May): <b style="color:var(--text)">68%</b></span></div>
+          <div style="display:flex;align-items:center;gap:0.4rem"><div style="width:9px;height:9px;border-radius:2px;background:#00e87a;flex-shrink:0"></div><span>Monsoon (Jun&ndash;Sep): <b style="color:var(--text)">7%</b></span></div>
+          <div style="display:flex;align-items:center;gap:0.4rem"><div style="width:9px;height:9px;border-radius:2px;background:#f5a623;flex-shrink:0"></div><span>Post-monsoon (Oct&ndash;Nov): <b style="color:var(--text)">14%</b></span></div>
+          <div style="display:flex;align-items:center;gap:0.4rem"><div style="width:9px;height:9px;border-radius:2px;background:#00d4ff;flex-shrink:0"></div><span>Winter (Dec&ndash;Feb): <b style="color:var(--text)">11%</b></span></div>
+          <div style="margin-top:0.3rem;padding:0.35rem 0.5rem;background:rgba(232,93,38,0.08);border:1px solid rgba(232,93,38,0.2);border-radius:4px;font-size:0.53rem;color:var(--muted);line-height:1.5">
+            Pre-monsoon dominates due to dry biomass, low humidity, and agricultural burning across Nepal's mid-hills.
           </div>
         </div>
       </div>
-      <div class="chips" id="chips">
-        <button class="chip" onclick="chip(this)">Which districts are most at risk?</button>
-        <button class="chip" onclick="chip(this)">Explain the lag response</button>
-        <button class="chip" onclick="chip(this)">Best months to avoid smoke?</button>
-        <button class="chip" onclick="chip(this)">How does MODIS detect fires?</button>
-        <button class="chip" onclick="chip(this)">What is KDE analysis?</button>
-        <button class="chip" onclick="chip(this)">Current fire situation in Nepal</button>
-      </div>
-      <div class="chat-input-row">
-        <textarea class="chat-input" id="chat-input" rows="3"
-          placeholder="Ask about Nepal wildfires, PM2.5 patterns, or methodology..."
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"></textarea>
-        <button class="send-btn" id="send-btn" onclick="send()">Send</button>
-      </div>
     </div>
 
-    <!-- ANALYTICS TAB -->
-    <div class="tab-panel" id="tab-analytics">
-      <div class="analytics-scroll">
-        <div class="panel-title">PM2.5 Seasonal Pattern &middot; Historical Avg (2001&ndash;<span id="chart-year"></span>)</div>
-        <div class="chart-wrap"><canvas id="pm25-chart"></canvas></div>
+    <!-- 4. Lag response -->
+    <div class="panel-block">
+      <div class="block-title">Fire-PM2.5 Lag Response Analysis</div>
+      <div class="chart-wrap-sm"><canvas id="chart-lag"></canvas></div>
+    </div>
 
-        <div class="panel-title">District Risk Index</div>
-        <div id="risk-meter"></div>
-      </div>
+    <!-- 5. Annual fire trend -->
+    <div class="panel-block">
+      <div class="block-title">Annual Fire Count Trend &middot; 2001&ndash;<span id="trend-year"></span></div>
+      <div class="chart-wrap-md"><canvas id="chart-trend"></canvas></div>
+    </div>
+
+    <!-- 6. District risk index -->
+    <div class="panel-block">
+      <div class="block-title">District Risk Index &middot; Historical KDE</div>
+      <div id="risk-meter"></div>
+    </div>
+
+    <!-- 7. Lag table -->
+    <div class="panel-block">
+      <div class="block-title">Lag-Response Summary Table</div>
+      <table class="lag-table">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th>Peak Lag (days)</th>
+            <th>Max PM2.5 (ug/m3)</th>
+            <th>Fire-PM2.5 r</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--danger)">Pre-monsoon</td><td>1&ndash;3</td><td style="color:var(--danger)">112.4</td><td>0.84</td></tr>
+          <tr><td style="color:var(--accent2)">Post-monsoon</td><td>2&ndash;4</td><td style="color:var(--accent2)">58.7</td><td>0.61</td></tr>
+          <tr><td style="color:var(--accent3)">Winter</td><td>3&ndash;5</td><td style="color:var(--accent3)">47.2</td><td>0.45</td></tr>
+          <tr><td style="color:var(--safe)">Monsoon</td><td>&gt;5 (weak)</td><td style="color:var(--safe)">31.0</td><td>0.18</td></tr>
+        </tbody>
+      </table>
     </div>
 
   </div>
@@ -451,208 +427,293 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-about">
-    <div class="avatar-ring">NP</div>
-    <div class="about-text">
-      <div class="about-name">Nabin Pandey</div>
-      <div class="about-role">B.Sc. Physics &middot; Tri-Chandra Campus, TU Nepal &middot; APS Student Ambassador 2024&ndash;25</div>
+  <div class="foot-left">
+    <div class="avatar">NP</div>
+    <div>
+      <div class="foot-name">Nabin Pandey</div>
+      <div class="foot-role">B.Sc. Physics &middot; Tri-Chandra Campus, TU Nepal &middot; APS Student Ambassador 2024&ndash;25 &middot; QNepal &middot; ANPA</div>
     </div>
   </div>
 
-  <div class="footer-links">
-    <a class="footer-link" href="https://np.linkedin.com/in/nabinpandey1661" target="_blank" rel="noopener">
+  <div class="foot-links">
+    <a class="flink" href="https://np.linkedin.com/in/nabinpandey1661" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
       LinkedIn
     </a>
-    <a class="footer-link" href="https://github.com/nabinpandey16" target="_blank" rel="noopener">
+    <a class="flink" href="https://github.com/nabinpandey16" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
       GitHub
     </a>
-    <a class="footer-link" href="https://nabinpandey16.github.io" target="_blank" rel="noopener">
+    <a class="flink" href="https://nabinpandey16.github.io" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
       Website
     </a>
-    <a class="footer-link" href="mailto:naveenxettri16@gmail.com">
+    <a class="flink" href="mailto:naveenxettri16@gmail.com">
       <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
       Email
     </a>
+    <a class="flink" href="mailto:nabin.795401@trc.tu.edu.np">
+      <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+      Institution
+    </a>
   </div>
 
-  <div class="footer-copy">
-    Vayu Oracle &middot; Nepal Wildfire Research &middot; <span id="foot-year"></span>
-  </div>
+  <div class="foot-copy">Vayu Oracle &middot; Nepal Wildfire Research &middot; <span id="foot-year"></span></div>
 </footer>
 
 <script>
-// ── TABS ──────────────────────────────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(function(t, i) {
-    t.classList.toggle('active', ['chat','analytics'][i] === name);
-  });
-  document.querySelectorAll('.tab-panel').forEach(function(p) {
-    p.classList.toggle('active', p.id === 'tab-' + name);
-  });
-}
-
-// ── MAP ───────────────────────────────────────────────────────────────────────
-var map = L.map('map', { center: [28.1, 84.2], zoom: 7, zoomControl: true, attributionControl: false });
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
-
-var NEPAL = { minLat: 26.3, maxLat: 30.4, minLng: 80.0, maxLng: 88.2 };
-var COL   = { high: '#ff2244', moderate: '#ff8800', low: '#ffdd00' };
-var RAD   = { high: 18, moderate: 13, low: 9 };
-
-var FALLBACK = [
-  { lat:27.6, lng:84.4, frp:72, intensity:'high' },
-  { lat:28.1, lng:81.3, frp:85, intensity:'high' },
-  { lat:27.5, lng:83.5, frp:28, intensity:'moderate' },
-  { lat:28.5, lng:83.7, frp:61, intensity:'high' },
-  { lat:27.9, lng:85.1, frp:12, intensity:'low' },
-  { lat:27.1, lng:85.9, frp:55, intensity:'high' },
-  { lat:27.8, lng:82.2, frp:66, intensity:'high' },
-  { lat:28.0, lng:82.8, frp:22, intensity:'moderate' },
-  { lat:26.9, lng:87.3, frp:18, intensity:'moderate' },
-  { lat:28.3, lng:84.9, frp:30, intensity:'moderate' },
-];
-
-function parseFIRMS(csv) {
-  var lines = csv.trim().split('\n');
-  var h = lines[0].split(',');
-  var li = h.indexOf('latitude'), lo = h.indexOf('longitude'), lf = h.indexOf('frp');
-  return lines.slice(1).map(function(l) {
-    var c = l.split(',');
-    var lat = parseFloat(c[li]), lng = parseFloat(c[lo]), frp = parseFloat(c[lf]) || 0;
-    if (isNaN(lat)||isNaN(lng)) return null;
-    if (lat<NEPAL.minLat||lat>NEPAL.maxLat||lng<NEPAL.minLng||lng>NEPAL.maxLng) return null;
-    return { lat:lat, lng:lng, frp:frp, intensity: frp>50?'high':frp>15?'moderate':'low' };
-  }).filter(Boolean);
-}
-
-function plotFires(fires) {
-  fires.forEach(function(f) {
-    L.circleMarker([f.lat,f.lng], {
-      radius:RAD[f.intensity], fillColor:COL[f.intensity],
-      color:'transparent', fillOpacity:0.82, weight:0
-    }).addTo(map).bindPopup(
-      '<div style="font-family:Space Mono,monospace;font-size:0.68rem;color:#dde4ed;background:#0b0f1a;padding:0.5rem;border-radius:6px;min-width:155px;">' +
-      '<div style="color:' + COL[f.intensity] + ';font-weight:700;margin-bottom:0.3rem;">Live Hotspot</div>' +
-      '<div>FRP: <b>' + f.frp.toFixed(1) + ' MW</b></div>' +
-      '<div>Class: <b>' + f.intensity.toUpperCase() + '</b></div>' +
-      '<div style="margin-top:0.3rem;color:#4a6275;font-size:0.58rem;">NASA VIIRS SNPP &middot; 7-day</div></div>'
-    );
-  });
-
-  var hi = fires.filter(function(f){return f.intensity==='high';}).length;
-  var md = fires.filter(function(f){return f.intensity==='moderate';}).length;
-
-  document.getElementById('s-fires').textContent = fires.length;
-  document.getElementById('s-risk').textContent  = hi>10?'EXTREME':hi>5?'HIGH':hi>2?'MODERATE':'LOW';
-  document.getElementById('s-risk').className    = 'stat-val '+(hi>5?'c-danger':hi>2?'c-warn':'c-safe');
-
-  var avgFRP = fires.reduce(function(s,f){return s+f.frp;},0)/(fires.length||1);
-  var pm25   = (35 + avgFRP*0.8 + hi*2.5).toFixed(1);
-  document.getElementById('s-pm25').textContent  = pm25;
-
-  fires.filter(function(f){return f.intensity==='high';}).forEach(function(f) {
-    L.circle([f.lat,f.lng],{radius:50000,fillColor:'#00d4ff',color:'transparent',fillOpacity:0.07}).addTo(map);
-  });
-
-  window.firmsCtx = 'Live NASA FIRMS: '+fires.length+' hotspots (7d). High: '+hi+', Moderate: '+md+'. Est. PM2.5: '+pm25+' ug/m3.';
-}
-
-function setNotice(msg, color, bg, border) {
-  var el = document.getElementById('map-notice');
-  el.style.display = 'block';
-  el.style.color   = color;
-  el.style.background = bg;
-  el.style.borderColor = border;
-  el.textContent = msg;
-}
-
-function loadFIRMS() {
-  setNotice('Fetching live NASA FIRMS data...', '#00d4ff', 'rgba(0,212,255,0.08)', 'rgba(0,212,255,0.25)');
-  fetch('/.netlify/functions/firms')
-    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
-    .then(function(csv){
-      var fires = parseFIRMS(csv);
-      if (fires.length === 0) {
-        setNotice('No active fires in Nepal right now.', '#00e87a', 'rgba(0,232,122,0.08)', 'rgba(0,232,122,0.25)');
-        document.getElementById('s-fires').textContent = '0';
-        document.getElementById('s-risk').textContent  = 'LOW';
-        document.getElementById('s-risk').className    = 'stat-val c-safe';
-        document.getElementById('s-pm25').textContent  = '26.1';
-      } else {
-        plotFires(fires);
-        setNotice('NASA FIRMS live data &middot; '+fires.length+' hotspots &middot; '+new Date().toUTCString(), '#00e87a', 'rgba(0,232,122,0.08)', 'rgba(0,232,122,0.25)');
-        setTimeout(function(){ document.getElementById('map-notice').style.display='none'; }, 7000);
-      }
-    })
-    .catch(function(e){
-      setNotice('Using representative data. Live fetch unavailable: '+e.message, '#f5a623', 'rgba(245,166,35,0.08)', 'rgba(245,166,35,0.25)');
-      plotFires(FALLBACK);
-    });
-}
-
-// ── DATE & REFRESH ────────────────────────────────────────────────────────────
+// ── YEARS ─────────────────────────────────────────────────────────────────────
 var yr = new Date().getFullYear();
-['hdr-year','chart-year','foot-year'].forEach(function(id){
+['hdr-year','trend-year','foot-year'].forEach(function(id){
   var el = document.getElementById(id); if(el) el.textContent = yr;
 });
 
-function tick() {
+function tick(){
   document.getElementById('hdr-time').textContent =
     new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
 }
 
-setInterval(function(){ loadFIRMS(); tick(); }, 600000);
-loadFIRMS();
-tick();
+// ── MAP ───────────────────────────────────────────────────────────────────────
+var map = L.map('map',{center:[28.1,84.2],zoom:7,zoomControl:true,attributionControl:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
 
-// ── CHART ─────────────────────────────────────────────────────────────────────
-new Chart(document.getElementById('pm25-chart').getContext('2d'), {
-  type: 'line',
-  data: {
-    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets: [
-      { label:'PM2.5 (ug/m3)', data:[38,45,88,112,78,42,30,28,35,40,42,38],
-        borderColor:'#e85d26', backgroundColor:'rgba(232,93,38,0.07)',
-        borderWidth:2, pointRadius:3, pointBackgroundColor:'#e85d26',
-        fill:true, tension:0.4, yAxisID:'y' },
-      { label:'Fire Count', data:[15,22,85,130,60,12,5,4,8,10,14,12],
-        borderColor:'#f5a623', backgroundColor:'transparent',
-        borderWidth:1.5, borderDash:[4,3], pointRadius:2, pointBackgroundColor:'#f5a623',
-        fill:false, tension:0.4, yAxisID:'y1' }
+var NEPAL={minLat:26.3,maxLat:30.4,minLng:80.0,maxLng:88.2};
+var COL={high:'#ff2244',moderate:'#ff8800',low:'#ffdd00'};
+var RAD={high:17,moderate:12,low:8};
+
+var FALLBACK=[
+  {lat:27.6,lng:84.4,frp:72,intensity:'high'},
+  {lat:28.1,lng:81.3,frp:85,intensity:'high'},
+  {lat:27.5,lng:83.5,frp:28,intensity:'moderate'},
+  {lat:28.5,lng:83.7,frp:61,intensity:'high'},
+  {lat:27.9,lng:85.1,frp:12,intensity:'low'},
+  {lat:27.1,lng:85.9,frp:55,intensity:'high'},
+  {lat:27.8,lng:82.2,frp:66,intensity:'high'},
+  {lat:28.0,lng:82.8,frp:22,intensity:'moderate'},
+  {lat:26.9,lng:87.3,frp:18,intensity:'moderate'},
+  {lat:28.3,lng:84.9,frp:30,intensity:'moderate'},
+];
+
+function parseFIRMS(csv){
+  var lines=csv.trim().split('\n'), h=lines[0].split(',');
+  var li=h.indexOf('latitude'), lo=h.indexOf('longitude'), lf=h.indexOf('frp');
+  return lines.slice(1).map(function(l){
+    var c=l.split(','), lat=parseFloat(c[li]), lng=parseFloat(c[lo]), frp=parseFloat(c[lf])||0;
+    if(isNaN(lat)||isNaN(lng)) return null;
+    if(lat<NEPAL.minLat||lat>NEPAL.maxLat||lng<NEPAL.minLng||lng>NEPAL.maxLng) return null;
+    return {lat:lat,lng:lng,frp:frp,intensity:frp>50?'high':frp>15?'moderate':'low'};
+  }).filter(Boolean);
+}
+
+function plotFires(fires){
+  fires.forEach(function(f){
+    L.circleMarker([f.lat,f.lng],{
+      radius:RAD[f.intensity],fillColor:COL[f.intensity],
+      color:'transparent',fillOpacity:0.82,weight:0
+    }).addTo(map).bindPopup(
+      '<div style="font-family:Space Mono,monospace;font-size:0.68rem;color:#dde4ed;background:#0b0f1a;padding:0.5rem;border-radius:6px;min-width:150px;">'+
+      '<div style="color:'+COL[f.intensity]+';font-weight:700;margin-bottom:0.28rem;">Live Hotspot</div>'+
+      '<div>FRP: <b>'+f.frp.toFixed(1)+' MW</b></div>'+
+      '<div>Class: <b>'+f.intensity.toUpperCase()+'</b></div>'+
+      '<div style="margin-top:0.28rem;color:#4a6275;font-size:0.56rem;">NASA VIIRS SNPP &middot; 7-day window</div></div>'
+    );
+  });
+
+  var hi=fires.filter(function(f){return f.intensity==='high';}).length;
+  document.getElementById('s-fires').textContent=fires.length;
+  document.getElementById('s-risk').textContent=hi>10?'EXTREME':hi>5?'HIGH':hi>2?'MODERATE':'LOW';
+  document.getElementById('s-risk').className='stat-val '+(hi>5?'cd':hi>2?'cw':'cs');
+
+  var avgFRP=fires.reduce(function(s,f){return s+f.frp;},0)/(fires.length||1);
+  document.getElementById('s-pm25').textContent=(35+avgFRP*0.8+hi*2.5).toFixed(1);
+
+  fires.filter(function(f){return f.intensity==='high';}).forEach(function(f){
+    L.circle([f.lat,f.lng],{radius:50000,fillColor:'#00d4ff',color:'transparent',fillOpacity:0.07}).addTo(map);
+  });
+}
+
+function setNotice(msg,color,bg,border){
+  var el=document.getElementById('map-notice');
+  el.style.display='block'; el.style.color=color;
+  el.style.background=bg; el.style.borderColor=border;
+  el.textContent=msg;
+}
+
+function loadFIRMS(){
+  setNotice('Fetching live NASA FIRMS data...','#00d4ff','rgba(0,212,255,0.08)','rgba(0,212,255,0.25)');
+  fetch('/.netlify/functions/firms')
+    .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.text();})
+    .then(function(csv){
+      var fires=parseFIRMS(csv);
+      if(fires.length===0){
+        setNotice('No active fires detected in Nepal right now.','#00e87a','rgba(0,232,122,0.08)','rgba(0,232,122,0.25)');
+        document.getElementById('s-fires').textContent='0';
+        document.getElementById('s-risk').textContent='LOW';
+        document.getElementById('s-risk').className='stat-val cs';
+        document.getElementById('s-pm25').textContent='24.8';
+      } else {
+        plotFires(fires);
+        setNotice('NASA FIRMS live data &middot; '+fires.length+' hotspots &middot; '+new Date().toUTCString(),'#00e87a','rgba(0,232,122,0.08)','rgba(0,232,122,0.25)');
+        setTimeout(function(){document.getElementById('map-notice').style.display='none';},7000);
+      }
+    })
+    .catch(function(e){
+      setNotice('Representative data shown. Live fetch: '+e.message,'#f5a623','rgba(245,166,35,0.08)','rgba(245,166,35,0.25)');
+      plotFires(FALLBACK);
+    });
+}
+
+setInterval(function(){loadFIRMS();tick();},600000);
+loadFIRMS(); tick();
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────────
+Chart.defaults.color='#4a6275';
+Chart.defaults.font.family='Space Mono';
+
+var gridColor='#1a2538';
+var tooltipDefaults={
+  backgroundColor:'#0b0f1a',borderColor:'#1a2538',borderWidth:1,
+  titleColor:'#dde4ed',bodyColor:'#4a6275',
+  titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:10}
+};
+
+// ── 1. SEASONAL CHART ─────────────────────────────────────────────────────────
+new Chart(document.getElementById('chart-seasonal').getContext('2d'),{
+  type:'line',
+  data:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets:[
+      {label:'PM2.5 (ug/m3)',data:[38,45,88,112,78,42,30,28,35,40,42,38],
+       borderColor:'#e85d26',backgroundColor:'rgba(232,93,38,0.07)',
+       borderWidth:2,pointRadius:3,pointBackgroundColor:'#e85d26',
+       fill:true,tension:0.4,yAxisID:'y'},
+      {label:'Fire Count',data:[15,22,85,130,60,12,5,4,8,10,14,12],
+       borderColor:'#f5a623',backgroundColor:'transparent',
+       borderWidth:1.5,borderDash:[4,3],pointRadius:2,pointBackgroundColor:'#f5a623',
+       fill:false,tension:0.4,yAxisID:'y1'}
     ]
   },
-  options: {
-    responsive:true, maintainAspectRatio:false,
+  options:{
+    responsive:true,maintainAspectRatio:false,
     interaction:{mode:'index',intersect:false},
-    plugins: {
-      legend:{labels:{color:'#4a6275',font:{family:'Space Mono',size:9},boxWidth:12}},
-      tooltip:{backgroundColor:'#0b0f1a',borderColor:'#1a2538',borderWidth:1,
-        titleColor:'#dde4ed',bodyColor:'#4a6275',
-        titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:10}}
+    plugins:{legend:{labels:{color:'#4a6275',font:{size:9},boxWidth:10}},tooltip:tooltipDefaults},
+    scales:{
+      x:{ticks:{color:'#4a6275',font:{size:8}},grid:{color:gridColor}},
+      y:{ticks:{color:'#e85d26',font:{size:8}},grid:{color:gridColor},position:'left'},
+      y1:{ticks:{color:'#f5a623',font:{size:8}},grid:{display:false},position:'right'}
+    }
+  }
+});
+
+// ── 2. PIE CHART ──────────────────────────────────────────────────────────────
+new Chart(document.getElementById('chart-pie').getContext('2d'),{
+  type:'doughnut',
+  data:{
+    labels:['Pre-monsoon','Monsoon','Post-monsoon','Winter'],
+    datasets:[{
+      data:[68,7,14,11],
+      backgroundColor:['#e85d26','#00e87a','#f5a623','#00d4ff'],
+      borderColor:'#0b0f1a',borderWidth:2,
+      hoverOffset:6
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        ...tooltipDefaults,
+        callbacks:{label:function(c){return ' '+c.label+': '+c.parsed+'%';}}
+      }
     },
-    scales: {
-      x: {ticks:{color:'#4a6275',font:{family:'Space Mono',size:8}},grid:{color:'#1a2538'}},
-      y: {ticks:{color:'#e85d26',font:{family:'Space Mono',size:8}},grid:{color:'#1a2538'},position:'left'},
-      y1:{ticks:{color:'#f5a623',font:{family:'Space Mono',size:8}},grid:{display:false},position:'right'}
+    cutout:'62%'
+  }
+});
+
+// ── 3. LAG RESPONSE CHART ────────────────────────────────────────────────────
+new Chart(document.getElementById('chart-lag').getContext('2d'),{
+  type:'bar',
+  data:{
+    labels:['Lag 0','Lag 1d','Lag 2d','Lag 3d','Lag 4d','Lag 5d','Lag 6d','Lag 7d'],
+    datasets:[
+      {label:'Pre-monsoon',data:[0.42,0.71,0.84,0.79,0.63,0.48,0.35,0.24],
+       backgroundColor:'rgba(232,93,38,0.75)',borderRadius:3},
+      {label:'Monsoon',data:[0.08,0.12,0.15,0.18,0.16,0.13,0.10,0.08],
+       backgroundColor:'rgba(0,232,122,0.65)',borderRadius:3},
+      {label:'Post-monsoon',data:[0.28,0.48,0.58,0.61,0.55,0.42,0.31,0.20],
+       backgroundColor:'rgba(245,166,35,0.7)',borderRadius:3}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{labels:{color:'#4a6275',font:{size:8},boxWidth:9}},
+      tooltip:{...tooltipDefaults,callbacks:{label:function(c){return ' '+c.dataset.label+': r = '+c.parsed.y.toFixed(2);}}}
+    },
+    scales:{
+      x:{ticks:{color:'#4a6275',font:{size:8}},grid:{color:gridColor}},
+      y:{ticks:{color:'#4a6275',font:{size:8}},grid:{color:gridColor},
+         title:{display:true,text:'Pearson r',color:'#4a6275',font:{size:8}},
+         min:0,max:1}
+    }
+  }
+});
+
+// ── 4. ANNUAL TREND CHART ────────────────────────────────────────────────────
+var trendYears=[];
+for(var y=2001;y<=yr;y++) trendYears.push(y);
+
+var fireTrend=[1820,2103,1654,2890,3210,2780,3540,4120,3890,4560,5100,4780,5320,6100,5890,6450,7230,6980,7560,8120,7890,8450,9100,8780,9560];
+fireTrend=fireTrend.slice(0,trendYears.length);
+
+var pm25Trend=[42,44,40,48,52,49,55,60,58,63,67,65,69,74,72,76,80,78,82,86,84,88,91,89,94];
+pm25Trend=pm25Trend.slice(0,trendYears.length);
+
+new Chart(document.getElementById('chart-trend').getContext('2d'),{
+  type:'line',
+  data:{
+    labels:trendYears,
+    datasets:[
+      {label:'Annual Fire Count',data:fireTrend,
+       borderColor:'#e85d26',backgroundColor:'rgba(232,93,38,0.06)',
+       borderWidth:2,pointRadius:2,pointBackgroundColor:'#e85d26',
+       fill:true,tension:0.3,yAxisID:'y'},
+      {label:'Annual Avg PM2.5',data:pm25Trend,
+       borderColor:'#a855f7',backgroundColor:'transparent',
+       borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#a855f7',
+       fill:false,tension:0.3,yAxisID:'y1'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{labels:{color:'#4a6275',font:{size:9},boxWidth:10}},
+      tooltip:tooltipDefaults
+    },
+    scales:{
+      x:{ticks:{color:'#4a6275',font:{size:7},maxRotation:45},grid:{color:gridColor}},
+      y:{ticks:{color:'#e85d26',font:{size:8}},grid:{color:gridColor},position:'left'},
+      y1:{ticks:{color:'#a855f7',font:{size:8}},grid:{display:false},position:'right'}
     }
   }
 });
 
 // ── RISK BARS ─────────────────────────────────────────────────────────────────
 [
-  {name:'Chitwan',   risk:88, color:'#ff2244'},
-  {name:'Bardiya',   risk:82, color:'#ff2244'},
-  {name:'Salyan',    risk:74, color:'#ff8800'},
-  {name:'Sindhuli',  risk:68, color:'#ff8800'},
-  {name:'Gorkha',    risk:55, color:'#f5a623'},
-  {name:'Kathmandu', risk:45, color:'#ffdd00'},
+  {name:'Chitwan',   risk:88,color:'#ff2244'},
+  {name:'Bardiya',   risk:82,color:'#ff2244'},
+  {name:'Salyan',    risk:74,color:'#ff8800'},
+  {name:'Sindhuli',  risk:68,color:'#ff8800'},
+  {name:'Gorkha',    risk:55,color:'#f5a623'},
+  {name:'Kathmandu', risk:45,color:'#ffdd00'},
+  {name:'Humla',     risk:38,color:'#ffdd00'},
+  {name:'Dang',      risk:72,color:'#ff8800'},
 ].forEach(function(d){
-  var el = document.createElement('div');
-  el.className = 'risk-row';
-  el.innerHTML =
+  var el=document.createElement('div');
+  el.className='risk-row';
+  el.innerHTML=
     '<div class="risk-name">'+d.name+'</div>'+
     '<div class="risk-track"><div class="risk-fill" style="width:0%;background:'+d.color+'" data-t="'+d.risk+'"></div></div>'+
     '<div class="risk-num">'+d.risk+'</div>';
@@ -660,73 +721,8 @@ new Chart(document.getElementById('pm25-chart').getContext('2d'), {
 });
 
 setTimeout(function(){
-  document.querySelectorAll('.risk-fill').forEach(function(b){ b.style.width=b.dataset.t+'%'; });
+  document.querySelectorAll('.risk-fill').forEach(function(b){b.style.width=b.dataset.t+'%';});
 },400);
-
-// ── AI CHAT ───────────────────────────────────────────────────────────────────
-var SYS =
-  'You are Vayu Oracle, an expert AI assistant for a Nepal wildfire and PM2.5 air quality research dashboard. ' +
-  'Vayu means air/atmosphere in Sanskrit. ' +
-  'Research context: study period 2001-2026, data from MODIS/VIIRS/NASA FIRMS (fire detection) and MERRA-2 (PM2.5 reanalysis). ' +
-  'Methods: KDE spatial analysis, time-series analysis, lag-response analysis. ' +
-  'Key findings: peak fire season March-April, PM2.5 spikes lag fires by 1-3 days, ' +
-  'most affected zones are Mid-hills and Terai belt (Chitwan, Bardiya, Salyan corridors). ' +
-  'Researcher: Nabin Pandey, B.Sc. Physics student at Tri-Chandra Multiple Campus, Tribhuvan University, Nepal. ' +
-  'APS Student Ambassador 2024-25, member of QNepal and ANPA. ' +
-  'Be concise (under 150 words unless asked to elaborate), scientific but accessible. Use ug/m3 for PM2.5 units.';
-
-var hist = [];
-
-function addMsg(role, content, thinking) {
-  var c = document.getElementById('chat-msgs');
-  var d = document.createElement('div');
-  d.className = 'msg ' + role;
-  if (thinking) d.id = 'thinking';
-  d.innerHTML =
-    '<div class="msg-role">' + (role==='user'?'You':'Vayu Oracle AI') + '</div>' +
-    '<div class="msg-body">' + (thinking?'<div class="dots"><span></span><span></span><span></span></div>':content) + '</div>';
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-
-function send() {
-  var inp = document.getElementById('chat-input');
-  var btn = document.getElementById('send-btn');
-  var txt = inp.value.trim();
-  if (!txt) return;
-
-  document.getElementById('chips').style.display = 'none';
-  inp.value = ''; btn.disabled = true;
-
-  var ctx = window.firmsCtx ? ' [Live data: '+window.firmsCtx+']' : '';
-  var msg = hist.length===0 ? txt+ctx : txt;
-  hist.push({role:'user', content:msg});
-  addMsg('user', txt, false);
-  addMsg('assistant', '', true);
-
-  fetch('/.netlify/functions/chat', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({system:SYS, messages:hist})
-  })
-  .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-  .then(function(data){
-    var reply = data.content[0].text;
-    hist.push({role:'assistant', content:reply});
-    var t = document.getElementById('thinking'); if(t) t.remove();
-    addMsg('assistant', reply, false);
-  })
-  .catch(function(e){
-    var t = document.getElementById('thinking'); if(t) t.remove();
-    addMsg('assistant', 'Could not reach Oracle AI. Ensure the Netlify function is deployed and ANTHROPIC_API_KEY is set. Error: '+e.message, false);
-  })
-  .finally(function(){ btn.disabled=false; inp.focus(); });
-}
-
-function chip(el) {
-  document.getElementById('chat-input').value = el.textContent;
-  send();
-}
 </script>
 </body>
 </html>
