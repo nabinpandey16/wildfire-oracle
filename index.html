@@ -561,11 +561,13 @@ function loadFIRMS(){
     .then(function(csv){
       var fires=parseFIRMS(csv);
       if(fires.length===0){
-        setNotice('No active fires detected in Nepal right now.','#00e87a','rgba(0,232,122,0.08)','rgba(0,232,122,0.25)');
+        // Real data loaded — genuinely no fires right now (common post-monsoon / off-season)
+        setNotice('Live data loaded. No active fire hotspots detected in Nepal in the past 7 days.','#00e87a','rgba(0,232,122,0.08)','rgba(0,232,122,0.25)');
         document.getElementById('s-fires').textContent='0';
         document.getElementById('s-risk').textContent='LOW';
         document.getElementById('s-risk').className='stat-val cs';
         document.getElementById('s-pm25').textContent='24.8';
+        setTimeout(function(){document.getElementById('map-notice').style.display='none';},8000);
       } else {
         plotFires(fires);
         setNotice('NASA FIRMS live data &middot; '+fires.length+' hotspots &middot; '+new Date().toUTCString(),'#00e87a','rgba(0,232,122,0.08)','rgba(0,232,122,0.25)');
@@ -573,7 +575,9 @@ function loadFIRMS(){
       }
     })
     .catch(function(e){
-      setNotice('Representative data shown. Live fetch: '+e.message,'#f5a623','rgba(245,166,35,0.08)','rgba(245,166,35,0.25)');
+      console.error('FIRMS fetch failed:', e.message, 'URL tried:', fetchUrl);
+      setNotice('Live fetch failed ('+e.message+'). Showing representative data.','#f5a623','rgba(245,166,35,0.08)','rgba(245,166,35,0.25)');
+      // Show fallback data so stats are never blank
       plotFires(FALLBACK);
     });
 }
